@@ -12,17 +12,48 @@
   </head>
   <body>
     <div class="container">
+    <div class="text-center">
+
       <div style="background-color:#1a1a1a" class="">
-        <h1 class="text-center" style="color:white">Hello world \m/</h1>
-      </div>
-    </div>
+        <h1 style="color:white">Hello world \m/</h1>
+      </div><!-- /tittle -->
+
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="input-group">
+            <input id="search" type="search" class="form-control" placeholder="enter a keyword">
+            <span class="input-group-btn">
+              <button id="search-btn" class="btn btn-success" type="button">Search</button>
+            </span>
+          </div><!-- /input-group -->
+        </div><!-- /.col-lg-6 -->
+      </div><!-- /.row -->
+
+    </div><!-- /text-center -->
+    </div><!-- /container -->
 
 
   </body>
-
 <!--JS CDN-->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <!-- Latest compiled and minified JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 <!--END JS CDN-->
+<!--HandMade JS-->
+  <script type="text/javascript">
+      //function to validate key pressed
+        var search_keyup = function(e){(e.which == 13)?search():false;};
+      //END function to validate key pressed
+
+      var search = function(){
+        var search_key = $("#search").val();
+        alert(search_key);
+      };
+
+      //setting the button action
+      $("#search").keyup(search_keyup);
+      $("#search-btn").click(search);
+      $("#search").focus();
+  </script>
+<!--END HandMade JS-->
 </html>
