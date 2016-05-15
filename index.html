@@ -40,6 +40,10 @@
       <!--END list-->
 
 
+
+
+
+
     </div><!-- /text-center -->
     </div><!-- /container -->
 
@@ -56,7 +60,7 @@
         var search_keyup = function(e){(e.which == 13)?search():false;};
         var search = function(){
           var search_key = $("#search").val();
-                    add_item(123,search_key);
+          iList.loadlist();
           $("#item_list").html(total_items);
         };
         //setting the button action
@@ -68,10 +72,56 @@
 
       //item list definition
       var total_items = "";
-      var add_item = function(number,text1){
-                  total_items += "<input id='"+number+"' type='search' class='form-control' placeholder='Im an item "+text1+"'>";
+
+      var add_item = function(name,price,sku,brand,imgsource,link){
+                  //total_items += "<input id='"+number+"' type='search' class='form-control' placeholder='Im an item "+text1+"'>";
+                    //console.log("dentro de add_item" + name + ".." + price + ".." + sku + ".." + brand + ".." + imgsource + ".." + link);
+                  var temp_ = "<div class='row'> \
+                          <div class='col-lg-12'> \
+                          <div class='media'> \
+                          <div class='media-left'> \
+                          <a href='http://www.theiconic.com.au/"+link+"'>\
+                          <img style='width: 200px' class='media-object' src='"+imgsource+"' alt='"+name+"'> \
+                          </a> \
+                          </div>\
+                          <div class='media-right'> \
+                          <h3>"+brand+"</h3> \
+                          <h3 class='media-heading'>"+name+"</h3> \
+                          <p>"+price+"</p> \
+                          <p>"+sku+"</p> \
+                          <p><a href='#' class='btn btn-primary' role='button'>Button</a> <a href='#' class='btn btn-default' role='button'>Button</a></p> \
+                          </div><!-- /.caption --> \
+                          </div><!-- /.thumbnail --> \
+                        </div><!-- /.col-lg-12 --> \
+                        </div><!-- /.row -->";
+//console.log(temp_);
+                  total_items += temp_;
+                  return true;
                 };
+
       //END item list definition
+
+      var iList = (function(){
+        var jsonlist = {};
+        $.ajax({
+          url: "https://eve.theiconic.com.au/v1/catalog/products?page=1&page_size=10",
+          context: document.body
+        }).done(function(data) {
+          jsonlist = data._embedded.product;
+          console.log(jsonlist);
+          console.log(data);
+        });
+        var publicAPI = {
+              loadlist: function(){
+                //add_item(jsonlist[0].name,jsonlist[0].price,jsonlist.sku,jsonlist[0]._embedded.brand.name,jsonlist[0]._embedded.images[0].thumbnail,jsonlist[0].link);
+                //alert(jsonlist[0]._embedded.images[0].thumbnail);
+                for (var i = 0; i < 10; i++) {
+                  add_item(jsonlist[i].name,jsonlist[i].price,jsonlist[i].sku,jsonlist[i]._embedded.brand.name,jsonlist[i]._embedded.images[0].thumbnail,jsonlist[i].link);
+                };
+              }
+        };
+        return publicAPI;
+      })();
 
 
   </script>
