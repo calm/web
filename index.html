@@ -26,8 +26,19 @@
               <button id="search-btn" class="btn btn-success" type="button">Search</button>
             </span>
           </div><!-- /input-group -->
-        </div><!-- /.col-lg-6 -->
+        </div><!-- /.col-lg-12 -->
       </div><!-- /.row -->
+
+      <!--list-->
+      <div class="row">
+        <div class="col-lg-12">
+            <div id="item_list">
+
+            </div>
+        </div><!-- /.col-lg-12 -->
+      </div><!-- /.row -->
+      <!--END list-->
+
 
     </div><!-- /text-center -->
     </div><!-- /container -->
@@ -41,19 +52,28 @@
 <!--END JS CDN-->
 <!--HandMade JS-->
   <script type="text/javascript">
-      //function to validate key pressed
+      //function to validate key pressed and search
         var search_keyup = function(e){(e.which == 13)?search():false;};
-      //END function to validate key pressed
+        var search = function(){
+          var search_key = $("#search").val();
+                    add_item(123,search_key);
+          $("#item_list").html(total_items);
+        };
+        //setting the button action
+        $("#search").keyup(search_keyup);
+        $("#search-btn").click(search);
+        $("#search").focus();
+      //END function to validate key pressed and search
 
-      var search = function(){
-        var search_key = $("#search").val();
-        alert(search_key);
-      };
 
-      //setting the button action
-      $("#search").keyup(search_keyup);
-      $("#search-btn").click(search);
-      $("#search").focus();
+      //item list definition
+      var total_items = "";
+      var add_item = function(number,text1){
+                  total_items += "<input id='"+number+"' type='search' class='form-control' placeholder='Im an item "+text1+"'>";
+                };
+      //END item list definition
+
+
   </script>
 <!--END HandMade JS-->
 </html>
