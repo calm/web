@@ -14,20 +14,19 @@
     <div class="container">
     <div class="text-center">
 
-      <div style="background-color:#1a1a1a" class="">
-        <h1 style="color:white">Hello world \m/</h1>
-      </div><!-- /tittle -->
 
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="input-group">
-            <input id="search" type="search" class="form-control" placeholder="enter a keyword">
-            <span class="input-group-btn">
-              <button id="search-btn" class="btn btn-success" type="button">Search</button>
-            </span>
-          </div><!-- /input-group -->
-        </div><!-- /.col-sm-12 -->
-      </div><!-- /.row -->
+      <nav class="navbar navbar-inverse">
+          <div class="navbar-header">
+            <a class="navbar-brand col-sm-6" href="#">Hello world \m/</a>
+            <div class="input-group col-sm-6">
+              <input id="search" type="search" class="form-control" placeholder="enter a keyword">
+              <span class="input-group-btn">
+                <button id="search-btn" class="btn btn-success" type="button">Search</button>
+              </span>
+            </div><!-- /input-group -->
+          </div>
+      </nav>
+
 
       <!--list-->
       <div class="row">
@@ -61,7 +60,7 @@
         };
         //setting the button action
         $("#search").keyup(search_keyup);
-        $("#search-btn").click(search);
+        $("#searchbtn").click(search);
         $("#search").focus();
       //END function to validate key pressed and search
 
@@ -80,7 +79,7 @@
         var add_item = function(name,price,sku,brand,imgsource,link){
 
           var page = total_items["page"];
-          var template_ = "<div class='col-sm-6'> \
+          var template_ = "<div class='col-sm-6 table-bordered'> \
                         <div class='media'> \
                           <div class='media-left'> \
                             <a href='http://www.theiconic.com.au/"+link+"'> \
@@ -105,7 +104,10 @@
 
         var get_pagination = function(){
 
-            var pagination = "<!--pagination--> \
+          var pagination = "<span class='label label-danger'>No results for '" + total_items["q"] + "'</span>";
+          if (total_items["page_count"]>0) {
+
+            pagination = "<!--pagination--> \
             <div class='row'> \
               <div class='col-sm-12'> \
                 <nav> \
@@ -148,7 +150,10 @@
                           </nav> \
                         </div><!-- /.col-sm---> \
                         </div><!-- /.row--> ";
-        return pagination;
+
+          }
+          return pagination;
+
         };
 
 
