@@ -74,11 +74,12 @@
       var opaList = (function(){
         //vars
         var jsonlist = {};
-        var total_items = new Array();
+        var total_items = [];
 
         //private methods
         var add_item = function(name,price,sku,brand,imgsource,link){
 
+          var page = total_items["page"];
           var template_ = "<div class='col-sm-6'> \
                         <div class='media'> \
                           <div class='media-left'> \
@@ -97,7 +98,7 @@
                             </div><!-- /.media-right --> \
                         </div><!-- /.media --> \
                       </div><!-- /.col-md-6 -->";
-          total_items.push(template_);
+          total_items[page].push(template_);
           return true;
 
         };
@@ -154,15 +155,16 @@
 
         //diferent functions for loading array and paint_items makes it possible to change presentation withtout reloading
         var paint_items = function(){
-
+          var page = total_items["page"];
           var output = "";
-          for (var i = 0; i < total_items.length; i++) {
+          for (var i = 0; i < total_items[page].length; i++) {
 
             if (i % 2 === 0) {
               output += "<div class='row'>";
-              output += total_items[i];
+
+              output += total_items[page][i];
             } else {
-              output += total_items[i];
+              output += total_items[page][i];
             }
 
             if ((i-1) % 2 === 0) {
@@ -172,7 +174,7 @@
           }
 
 
-          output += get_pagination(total_items);
+          output += get_pagination();
           $("#item_list").html(output);
           return true;
 
@@ -182,27 +184,40 @@
         var publicAPI = {
 
               loadlist: function(search_key,page){
-                  total_items = new Array();
+                  //if its first time loading the search we create an array for items
+                  if (search_key !== total_items["q"]) {
+                    total_items = [];
+                  }
                   total_items["page"] = page;
-                  $.ajax({
 
-                      url: "https://eve.theiconic.com.au/v1/catalog/products?q="+search_key+"&page="+page+"&page_size=10",
-                      context: document.body
 
-                  }).done(function(data) {
+                  //if the page has been loaded we pull it from the local-client object
+                  if (total_items[page]) {
+                    paint_items(total_items[page]);
+                  } else {
+                    //creating the level [page] as an array to store that page items.
+                    total_items[page] = [];
+                    $.ajax({
 
-                    total_items["page_count"]=data.page_count;
-                    total_items["q"]=search_key;
-                    jsonlist = data._embedded.product;
-                    for (var i = 0; i < jsonlist.length; i++) {
-                      add_item(jsonlist[i].name,jsonlist[i].price,jsonlist[i].sku,jsonlist[i]._embedded.brand.name,jsonlist[i]._embedded.images[0].thumbnail,jsonlist[i].link);
-                    };
+                        url: "https://eve.theiconic.com.au/v1/catalog/products?q="+search_key+"&page="+page+"&page_size=10",
+                        context: document.body
 
-                    paint_items(total_items);
-                    //console.log(data);
-                    //console.log(total_items);
+                    }).done(function(data) {
 
-                  });
+                      total_items["page_count"]=data.page_count;
+                      total_items["q"]=search_key;
+                      jsonlist = data._embedded.product;
+                      for (var i = 0; i < jsonlist.length; i++) {
+                        add_item(jsonlist[i].name,jsonlist[i].price,jsonlist[i].sku,jsonlist[i]._embedded.brand.name,jsonlist[i]._embedded.images[0].thumbnail,jsonlist[i].link);
+                      };
+
+                      paint_items(total_items[page]);
+                      console.log(data);
+                      console.log(total_items);
+
+                    });
+
+                  }
 
               }
 
