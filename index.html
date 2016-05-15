@@ -19,28 +19,25 @@
       </div><!-- /tittle -->
 
       <div class="row">
-        <div class="col-lg-12">
+        <div class="col-sm-12">
           <div class="input-group">
             <input id="search" type="search" class="form-control" placeholder="enter a keyword">
             <span class="input-group-btn">
               <button id="search-btn" class="btn btn-success" type="button">Search</button>
             </span>
           </div><!-- /input-group -->
-        </div><!-- /.col-lg-12 -->
+        </div><!-- /.col-sm-12 -->
       </div><!-- /.row -->
 
       <!--list-->
       <div class="row">
-        <div class="col-lg-12">
+        <div class="col-sm-12">
             <div id="item_list">
 
             </div>
-        </div><!-- /.col-lg-12 -->
+        </div><!-- /.col-sm-12 -->
       </div><!-- /.row -->
       <!--END list-->
-
-
-
 
 
 
@@ -60,7 +57,7 @@
         var search_keyup = function(e){(e.which == 13)?search():false;};
         var search = function(){
           var search_key = $("#search").val();
-          iList.loadlist(search_key);
+          opaList.loadlist(search_key,1);
         };
         //setting the button action
         $("#search").keyup(search_keyup);
@@ -70,37 +67,94 @@
 
 
 
-
-      var iList = (function(){
+// opa stands for OnePageArmy List,
+// this object:
+// load a list, creates a list, add a footer-pagination to the list
+// it is created and instanciated at once.
+      var opaList = (function(){
         //vars
         var jsonlist = {};
+        var total_items = new Array();
 
         //private methods
-        var add_item = function(name,price,sku,brand,imgsource,link,total_items){
+        var add_item = function(name,price,sku,brand,imgsource,link){
 
-          var temp_ = "<div class='col-md-6'> \
+          var template_ = "<div class='col-sm-6'> \
                         <div class='media'> \
                           <div class='media-left'> \
                             <a href='http://www.theiconic.com.au/"+link+"'> \
-                              <img style='width: 100px' class='media-object' src='"+imgsource+"' alt='"+name+"'> \
+                              <img style='width: 75px' class='media-object' src='"+imgsource+"' alt='"+name+"'> \
                             </a> \
                           </div><!-- /.media-left --> \ \
                           <div class='media-right'> \
-                            <a href='http://www.theiconic.com.au/"+link+"'> \
-                              <h3 class='media-heading'>"+brand+"&nbsp;"+name+"</h3> \
+                             <h4 class='media-heading'> \
+                              <a href='#' onclick='javascript:opaList.loadlist(\""+brand+"\",1); return false;'>"+brand+"</a>&nbsp; \
+                              <small><a href='http://www.theiconic.com.au/"+link+"'>"+name+"</a></small> \
+                              </h4> \
                             </a> \
-                            <p>"+price+"</p> \
-                            <p>"+sku+"</p> \
+                            <p><em>"+price+" $</em></p> \
+                            <p><small>sku:"+sku+"</small></p> \
                             </div><!-- /.media-right --> \
                         </div><!-- /.media --> \
                       </div><!-- /.col-md-6 -->";
-          total_items.push(temp_);
+          total_items.push(template_);
           return true;
 
         };
+
+        var get_pagination = function(){
+
+            var pagination = "<!--pagination--> \
+            <div class='row'> \
+              <div class='col-sm-12'> \
+                <nav> \
+                <ul class='pagination'> ";
+
+                //previous and first page link
+            if (total_items["page"]>1) {
+              pagination += "<li> \
+              <a href='#' onclick='javascript:opaList.loadlist(\""+total_items["q"]+"\",1); return false;' aria-label='Previous'> \
+              <span aria-hidden='true'>&laquo;&laquo;</span> \
+              </a> \
+              </li> ";
+
+              pagination += "<li> \
+                <a href='#' onclick='javascript:opaList.loadlist(\""+total_items["q"]+"\","+(total_items["page"]-1)+"); return false;' aria-label='Previous'> \
+                  <span aria-hidden='true'>&laquo;</span> \
+                </a> \
+              </li> ";
+            }
+            pagination += "<li><span aria-hidden='true'>"+total_items["page"]+" of "+total_items["page_count"]+"</span></li> ";
+            //next and last page link
+            if (total_items["page"]<total_items["page_count"]) {
+              pagination += " \
+                <li> \
+                  <a href='#' onclick='javascript:opaList.loadlist(\""+total_items["q"]+"\","+(total_items["page"]+1)+"); return false;' aria-label='Next'> \
+                    <span aria-hidden='true'>&raquo;</span> \
+                  </a> \
+                </li> ";
+
+              pagination += " \
+                <li> \
+                  <a href='#' onclick='javascript:opaList.loadlist(\""+total_items["q"]+"\","+total_items["page_count"]+"); return false;' aria-label='Next'> \
+                    <span aria-hidden='true'>&raquo;&raquo;</span> \
+                  </a> \
+                </li> ";
+            }
+
+
+            pagination += "</ul> \
+                          </nav> \
+                        </div><!-- /.col-sm---> \
+                        </div><!-- /.row--> ";
+        return pagination;
+        };
+
+
+
         //diferent functions for loading array and paint_items makes it possible to change presentation withtout reloading
-        var paint_items = function(total_items){
- //
+        var paint_items = function(){
+
           var output = "";
           for (var i = 0; i < total_items.length; i++) {
 
@@ -116,6 +170,9 @@
             }
 
           }
+
+
+          output += get_pagination(total_items);
           $("#item_list").html(output);
           return true;
 
@@ -124,24 +181,26 @@
         //public methods
         var publicAPI = {
 
-              loadlist: function(search_key){
-
+              loadlist: function(search_key,page){
+                  total_items = new Array();
+                  total_items["page"] = page;
                   $.ajax({
 
-                      url: "https://eve.theiconic.com.au/v1/catalog/products?q="+search_key+"&page=1&page_size=10",
+                      url: "https://eve.theiconic.com.au/v1/catalog/products?q="+search_key+"&page="+page+"&page_size=10",
                       context: document.body
 
                   }).done(function(data) {
 
-                    var total_items = new Array();
+                    total_items["page_count"]=data.page_count;
+                    total_items["q"]=search_key;
                     jsonlist = data._embedded.product;
-                    for (var i = 0; i < 10; i++) {
-                      add_item(jsonlist[i].name,jsonlist[i].price,jsonlist[i].sku,jsonlist[i]._embedded.brand.name,jsonlist[i]._embedded.images[0].thumbnail,jsonlist[i].link,total_items);
+                    for (var i = 0; i < jsonlist.length; i++) {
+                      add_item(jsonlist[i].name,jsonlist[i].price,jsonlist[i].sku,jsonlist[i]._embedded.brand.name,jsonlist[i]._embedded.images[0].thumbnail,jsonlist[i].link);
                     };
 
                     paint_items(total_items);
-                    //console.log(jsonlist);
-                    console.log(total_items);
+                    //console.log(data);
+                    //console.log(total_items);
 
                   });
 
@@ -152,6 +211,7 @@
 
       })();
 
+      opaList.loadlist("",1);
 
   </script>
 <!--END HandMade JS-->
